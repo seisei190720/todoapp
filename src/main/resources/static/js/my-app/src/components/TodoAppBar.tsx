@@ -1,57 +1,51 @@
-import {
-  AppBar,
-  Button,
-  Container,
-  Grid,
-  Stack,
-  TextField,
-  ThemeProvider,
-  Toolbar,
-  colors,
-} from "@mui/material";
+import { Button, Stack, TextField, ThemeProvider } from "@mui/material";
 import { theme } from "../App";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-// import { taskContentState, taskDeadlineState } from "../atoms/TodoContent";
+import { useRecoilState } from "recoil";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { red } from "@mui/material/colors";
 import dayjs from "dayjs";
+
 import {
-  taskContentState,
-  taskDeadlineState,
+  taskApiSelector,
+  taskCacheAtom,
+  todoData,
 } from "../atoms/RegisterDialogContent";
-import { tasksState } from "../atoms/Tasks";
+import { useState } from "react";
 
 export default function TodoAppBar() {
-  const taskContent = useRecoilValue(taskContentState);
-  const taskDeadline = useRecoilValue(taskDeadlineState);
-  const [tasks, setTasks] = useRecoilState(tasksState);
+  const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
+  const [cachedTask] = useRecoilState(taskCacheAtom);
+  // const [tasks, setTasks] = useRecoilState(taskContentState);
 
+  const [taskContent, setTaskContent] = useState<todoData>({
+    id: 1,
+    title: "",
+    done_flg: 0,
+    time_limit: new Date(),
+  });
   const handlerRegister = () => {
-    setTasks([
-      ...tasks,
-      {
-        content: taskContent,
-        deadline: taskDeadline,
-      },
+    if (cachedTask === null) return;
+    store([
+      ...cachedTask,
+      taskContent,
     ]);
     // TODO: テキストフィールドを初期化する処理を入れる↓
+    
   };
 
-  //atomからstateを取得する
-  const setContent = useSetRecoilState(taskContentState);
-  const [deadline, setDeadline] = useRecoilState(taskDeadlineState);
+  // const setContent = useSetRecoilState(taskContentState);
+  // const [deadline, setDeadline] = useRecoilState(taskDeadlineState);
 
   //   タスクの内容が変更された時
   const handleContentChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setContent(e.target.value);
+    setTaskContent((prev) => ({ ...prev, title: e.target.value}));
   };
 
   //タスクの期限が変更されたとき
   const handleDeadlineChange = (date: any) => {
-    setDeadline(date);
+    // setDeadline(date);
   };
 
   return (
@@ -79,7 +73,7 @@ export default function TodoAppBar() {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             // defaultValue={dayjs(new Date())}
-            onChange={date => handleDeadlineChange(date)}
+            onChange={(date) => handleDeadlineChange(date)}
             label={dayjs(new Date()).toString()}
             slotProps={{
               textField: {

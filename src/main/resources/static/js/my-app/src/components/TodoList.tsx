@@ -5,8 +5,9 @@ import Typography from '@mui/material/Typography';
 import { Theme, createStyles, makeStyles, styled } from '@mui/material/styles';
 import TodoTable from './TodoTable';
 import { Fab } from '@mui/material';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { tasksState } from '../atoms/Tasks';
+import { taskApiSelector, todoData } from '../atoms/RegisterDialogContent';
 
 // import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 // import Box from '@material-ui/core/Box';
@@ -34,25 +35,15 @@ import { tasksState } from '../atoms/Tasks';
 export default function TodoList() {
   // const classes = useStyles();
 
-  const tasks = useRecoilValue(tasksState);
-  const [open, setOpen] = useState<boolean>(false);
+  const [savedTask] = useRecoilState<todoData[]>(taskApiSelector);
 
-  const handleOpen = () => setOpen(true);
 
   return (
     <>
       <Box padding="2rem" textAlign="center">
-        {tasks.length !== 0 ? (
+        {savedTask.length !== 0 ? (
           <>
             <TodoTable />
-            <Fab
-              // className={classes.fab}
-              onClick={handleOpen}
-              color="primary"
-              aria-label="add"
-            >
-              {/* <AddIcon /> */}
-            </Fab>
           </>
         ) : (
           <>

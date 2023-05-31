@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { tasksState } from "../atoms/Tasks";
 import { useRecoilState } from "recoil";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import {
-    Checkbox,
+  Checkbox,
   IconButton,
   Table,
   TableBody,
@@ -14,6 +14,11 @@ import {
   TableRow,
 } from "@mui/material";
 import dayjs from "dayjs";
+import {
+  todoData,
+  taskApiSelector,
+  taskCacheAtom,
+} from "../atoms/RegisterDialogContent";
 
 export default function TodoTable() {
   const [tasks, setTasks] = useRecoilState(tasksState);
@@ -27,6 +32,20 @@ export default function TodoTable() {
     // }
     setSelected([]);
   };
+
+  //-テストーーーーーーーーーーーーーーーーーーーーーーーーーーー
+  // 値が取得できるまではPromiseをthrowするので次の行が実行されない
+
+  //taskApiSelectorのsetterには、taskCacheAtomに値をセットする関数が定義されている
+  const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
+  const [cachedTask] = useRecoilState(taskCacheAtom);
+  useEffect(() => {
+    store(savedTask); // 初回fetchで返った値をselectorに保存する
+    // console.log("こんにちは");
+    // console.log(savedTask);
+    // console.log(ezawa);
+  }, [savedTask, store]);
+  //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
   // 特定のタスクを選択する
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
@@ -82,7 +101,7 @@ export default function TodoTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-          {tasks.map((task: any, index: number) => (
+            {cachedTask?.map((task: any, index: number) => (
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -90,9 +109,9 @@ export default function TodoTable() {
                     onChange={(e: any) => handleCheck(e, index)}
                   />
                 </TableCell>
-                <TableCell>{task.content}</TableCell>
+                <TableCell>{task.title}</TableCell>
                 <TableCell align="center">
-                  {dayjs(new Date()).format("YYYY-MM-DD").toString()}
+                  {dayjs(task.time_limit).format("YYYY-MM-DD").toString()}
                 </TableCell>
               </TableRow>
             ))}

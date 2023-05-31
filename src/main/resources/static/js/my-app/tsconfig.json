@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-, "../../../../../../TodoContent.tsx"  ]
+, "../../../../../../TodoContent.tsx", "src/components/TodoAppBar.tsx"  ]
 }

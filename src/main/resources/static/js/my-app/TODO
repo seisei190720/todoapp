@@ -1,0 +1,9 @@
+【TODO】
+□object型でresponseを取得できているので、それをフロント側で表示できるように実装する
+□画面上のみでtaskの保存ができるようになったので、次は日付の保存ができるようにする。→DB書き換えもできるようにする。
+
+【学び】
+□selector作成時に、setを宣言していない場合は、
+呼び出し時にuseRecoilState,useRecoilSetterは指定できない。(useRecoilValueのみ)
+→selectorではどのようにsetするのか定義する必要がある。おそらく、get(useRecoilValue)も同様
+

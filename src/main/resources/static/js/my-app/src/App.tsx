@@ -1,14 +1,14 @@
-import './App.css';
+import "./App.css";
 // import './styles.css';
-import React from 'react';
-import TodoAppBar from './components/TodoAppBar';
-import { DialogContent, createTheme } from '@mui/material';
-import { grey, pink } from '@mui/material/colors';
-import TodoList from './components/TodoList';
-import { RecoilRoot } from 'recoil';
+import React, { Suspense } from "react";
+// import TodoAppBar from "./components/TodoAppBar";
+import { DialogContent, createTheme } from "@mui/material";
+import { grey, pink } from "@mui/material/colors";
+import TodoList from "./components/TodoList";
+import { RecoilRoot } from "recoil";
+import TodoAppBar from "./components/TodoAppBar";
 
-
-// // ajax関数	
+// // ajax関数
 // const ajax = (url: string, method = "GET", data: object | null, success: ((req: XMLHttpRequest) => void) | undefined | null = null, error: ((req: XMLHttpRequest) => void) | undefined | null = null, sync = true): void => {
 //   let xhr = new XMLHttpRequest();
 //   let json = "";
@@ -58,7 +58,7 @@ import { RecoilRoot } from 'recoil';
 //       setUndoneList(msg.responseText);
 //     }, null, false);
 //   }, []);
-  
+
 //   return (
 //     <>
 //       {message}
@@ -67,17 +67,17 @@ import { RecoilRoot } from 'recoil';
 //       <Button variant="contained">contained</Button>
 //       <Button variant="outlined">outlined</Button>
 //     </>
-//   );	
+//   );
 // }
 // export default App;
 
 export const theme = createTheme({
   palette: {
     primary: {
-      main: grey[800]
+      main: grey[800],
     },
     secondary: {
-      main: pink[300]
+      main: pink[300],
     },
     text: {
       primary: grey[800],
@@ -87,41 +87,40 @@ export const theme = createTheme({
       paper: pink[300],
     },
   },
-  
+
   // components: {
   //   MuiIconButton: {
   //     styleOverrides: {
-  //       sizeMedium: 
+  //       sizeMedium:
   //         pink[300]
-        
+
   //     }
   //   },
   //   MuiOutlinedInput: {
   //     styleOverrides: {
-  //       root: 
+  //       root:
   //         pink[300]
-        
+
   //     }
   //   },
   //   MuiInputLabel: {
   //     styleOverrides: {
-  //       root: 
+  //       root:
   //       pink[300]
   //     }
   //   }
   // }
 });
 
-
-
-
 export default function App() {
   return (
     <RecoilRoot>
-      <DialogContent className='App'>
-        <TodoAppBar />
-        <TodoList />
-      </DialogContent>
+      <Suspense fallback={<div>Loading...</div>}>
+        <DialogContent className="App">
+          <TodoAppBar />
+          <TodoList />
+        </DialogContent>
+      </Suspense>
     </RecoilRoot>
-  )
+  );
 }
