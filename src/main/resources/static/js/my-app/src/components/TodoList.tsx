@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { Theme, createStyles, makeStyles, styled } from '@mui/material/styles';
-import TodoTable from './TodoTable';
-import { Fab } from '@mui/material';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { tasksState } from '../atoms/Tasks';
-import { taskApiSelector, todoData } from '../atoms/RegisterDialogContent';
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import {
+  Theme,
+  ThemeProvider,
+  createStyles,
+  makeStyles,
+  styled,
+} from "@mui/material/styles";
+import TodoTable from "./TodoTable";
+import { Fab } from "@mui/material";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { tasksState } from "../atoms/Tasks";
+import { taskApiSelector } from "../atoms/RegisterDialogContent";
+import { theme } from "../App";
+import { todoData } from "./types";
 
 // import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 // import Box from '@material-ui/core/Box';
@@ -37,13 +45,14 @@ export default function TodoList() {
 
   const [savedTask] = useRecoilState<todoData[]>(taskApiSelector);
 
-
   return (
     <>
       <Box padding="2rem" textAlign="center">
         {savedTask.length !== 0 ? (
           <>
-            <TodoTable />
+            <ThemeProvider theme={theme}>
+              <TodoTable />
+            </ThemeProvider>
           </>
         ) : (
           <>

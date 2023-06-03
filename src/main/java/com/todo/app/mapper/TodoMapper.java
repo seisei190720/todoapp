@@ -11,6 +11,8 @@ public interface TodoMapper {
 
 	public List<Todo> selectAll();
 	
+	public Todo selectLatestTask();
+	
 	public List<Todo> selectIncomplete();
 	
 	public List<Todo> selectComplete();
@@ -19,5 +21,5 @@ public interface TodoMapper {
 	
 	public void update(Todo todo);
 	
-	public void delete();
+	public void delete(long todoId);
 }

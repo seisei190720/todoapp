@@ -16,9 +16,9 @@ export const tasksState = atom<
 export const testTasksState = atom<
   {
     id: number;
-    title: string;
-    done_flg: number;
-    time_limit: Date;
+    task: string;
+    done: number;
+    due: Date;
   }[]
 >({
   key: "taskContentState",

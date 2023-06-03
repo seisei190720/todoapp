@@ -8,8 +8,12 @@ import lombok.Data;
 public class Todo {
 
 	private long id;
-	private String title;
-	private int done_flg;
-	private String time_limit;
+	private String task;
+	private String due;
+	private int done;
+	private int priority;
+	private String refs;
+	private int till_today;
+	private String done_date;
 
 }

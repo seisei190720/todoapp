@@ -1,26 +1,20 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { DefaultValue, atom, selector } from "recoil";
+import { rejects } from "assert";
+import axios, { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
+import { DefaultValue, atom, selector, useRecoilState } from "recoil";
+import { todoData } from "../components/types";
 
-
-export type todoData = {
-  id: number;
-  title: string;
-  done_flg: number;
-  time_limit: Date;
-};
+// export type todoData = {
+//   id: number;
+//   task: string;
+//   done: number;
+//   due: Date;
+// };
 
 export const options: AxiosRequestConfig = {
-  url: "http://localhost:3000/data/hello.json",
+  url: "http://localhost:3000/tasks",
   method: "GET",
   responseType: "json",
 };
-
-//テスト-------------------------------------------
-// キャッシュ置き場
-export const taskCacheAtom = atom<todoData[] | null>({
-  key: "taskCacheAtom",
-  default: null,
-});
 
 export const taskApiSelector = selector<todoData[]>({
   key: "taskApiSelector",
@@ -47,5 +41,29 @@ export const taskApiSelector = selector<todoData[]>({
     }
   },
 });
-//-----------------------------------------------
 
+// キャッシュ置き場
+export const taskCacheAtom = atom<todoData[] | null>({
+  key: "taskCacheAtom",
+  default: null,
+});
+
+export const registerTaskApi = async (todo: todoData) => {
+  //TODO エラーハンドリング
+  const response: AxiosResponse = await axios.post(
+    "http://localhost:3000/task/add",
+    todo
+  );
+  return response.data
+};
+
+export const deleteTodo = (todoId: number) => {
+  axios.delete(`http://localhost:3000/task/delete/${todoId}`).then((res) => {
+    //おそらくmutate的なことをしているので、確認する
+    // this?.$router.push({path: '/articles/list'});
+  });
+  // .catch(error => {
+  //     alert("「" + responseBody.task + "」登録失敗");
+  //     console.log(error, data);
+  // });
+};

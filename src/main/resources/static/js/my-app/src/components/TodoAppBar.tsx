@@ -6,46 +6,46 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 import {
-  taskApiSelector,
+  registerTaskApi,
   taskCacheAtom,
-  todoData,
 } from "../atoms/RegisterDialogContent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { todoData } from "./types";
 
 export default function TodoAppBar() {
-  const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
-  const [cachedTask] = useRecoilState(taskCacheAtom);
-  // const [tasks, setTasks] = useRecoilState(taskContentState);
+  const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
 
   const [taskContent, setTaskContent] = useState<todoData>({
     id: 1,
-    title: "",
-    done_flg: 0,
-    time_limit: new Date(),
+    task: "",
+    due: new Date(),
+    done: 0,
+    priority: null,
+    refs: null,
+    till_today: 0,
+    done_date: null,
   });
-  const handlerRegister = () => {
-    if (cachedTask === null) return;
-    store([
-      ...cachedTask,
-      taskContent,
-    ]);
-    // TODO: テキストフィールドを初期化する処理を入れる↓
-    
-  };
 
-  // const setContent = useSetRecoilState(taskContentState);
-  // const [deadline, setDeadline] = useRecoilState(taskDeadlineState);
+  useEffect(() => {
+    console.log("キャッシュされているタスク一覧");
+    console.log(cachedTask);
+  },[cachedTask])
+
+  const handlerRegister = async() => {
+    const registeredTask: todoData = await registerTaskApi(taskContent);
+    setCachedTask((prev) => prev ? [...prev, registeredTask] : [registeredTask]);//cacheの中身を置き換える
+    setTaskContent((prev) => ({ ...prev, task: ""}));//TextFieldの初期化
+  };
 
   //   タスクの内容が変更された時
   const handleContentChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setTaskContent((prev) => ({ ...prev, title: e.target.value}));
+    setTaskContent((prev) => ({ ...prev, task: e.target.value}));
   };
 
-  //タスクの期限が変更されたとき
   const handleDeadlineChange = (date: any) => {
-    // setDeadline(date);
+    setTaskContent((prev) => ({ ...prev, due: date}));
   };
 
   return (
@@ -62,7 +62,8 @@ export default function TodoAppBar() {
       <Stack direction="row" spacing={1} justifyContent="space-between">
         <TextField
           onChange={handleContentChange}
-          label="ToDo"
+          value={taskContent.task}
+          label="TODO"
           variant="filled"
           color="secondary"
           placeholder="type your new todo"
@@ -77,10 +78,11 @@ export default function TodoAppBar() {
             label={dayjs(new Date()).toString()}
             slotProps={{
               textField: {
+                // value: taskContent.due,
                 variant: "filled",
                 color: "secondary",
-                focused: false,
-                label: "date",
+                // focused: false,
+                label: "DATE",
                 style: { background: "#323232" },
               },
             }}

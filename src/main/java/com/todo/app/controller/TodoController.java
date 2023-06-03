@@ -44,6 +44,6 @@ public class TodoController {
 	@RequestMapping(value="delete")
 	@ResponseBody
 	public void delete() {
-		todoMapper.delete();
+		todoMapper.delete(1);
 	}
 }
