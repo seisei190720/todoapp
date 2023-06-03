@@ -23,5 +23,7 @@ public interface TodoMapper {
 	
 	public void updateTillToday(long todoId, long tillTodayFlg);
 	
+	public void updateDone(long todoId, long doneFlg, long tillTodayFlg);
+	
 	public void delete(long todoId);
 }

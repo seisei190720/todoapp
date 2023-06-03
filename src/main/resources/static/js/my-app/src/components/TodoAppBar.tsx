@@ -5,15 +5,13 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-import {
-  registerTaskApi,
-  taskCacheAtom,
-} from "../atoms/RegisterDialogContent";
-import { useEffect, useState } from "react";
+import { registerTaskApi, taskCacheAtom } from "../atoms/RegisterDialogContent";
+import { useEffect, useRef, useState } from "react";
 import { todoData } from "./types";
 
 export default function TodoAppBar() {
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
+  const ref = useRef<HTMLInputElement>(null);
 
   const [taskContent, setTaskContent] = useState<todoData>({
     id: 1,
@@ -29,23 +27,33 @@ export default function TodoAppBar() {
   useEffect(() => {
     console.log("キャッシュされているタスク一覧");
     console.log(cachedTask);
-  },[cachedTask])
+  }, [cachedTask]);
 
-  const handlerRegister = async() => {
+  const handlerRegister = async () => {
     const registeredTask: todoData = await registerTaskApi(taskContent);
-    setCachedTask((prev) => prev ? [...prev, registeredTask] : [registeredTask]);//cacheの中身を置き換える
-    setTaskContent((prev) => ({ ...prev, task: ""}));//TextFieldの初期化
+    setCachedTask((prev) =>
+      prev ? [...prev, registeredTask] : [registeredTask]
+    ); //cacheの中身を置き換える
+    setTaskContent((prev) => ({ ...prev, task: "", refs: "", date: "MM/DD/YYYY"})); //TextFieldの初期化
+    ref.current?.focus();//TextFieldをfocus
   };
 
   //   タスクの内容が変更された時
   const handleContentChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setTaskContent((prev) => ({ ...prev, task: e.target.value}));
+    setTaskContent((prev) => ({ ...prev, task: e.target.value }));
   };
 
+    //   URLの内容が変更された時
+    const handleUrlChange = (
+      e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+    ) => {
+      setTaskContent((prev) => ({ ...prev, refs: e.target.value }));
+    };
+
   const handleDeadlineChange = (date: any) => {
-    setTaskContent((prev) => ({ ...prev, due: date}));
+    setTaskContent((prev) => ({ ...prev, due: date }));
   };
 
   return (
@@ -61,6 +69,7 @@ export default function TodoAppBar() {
       {/* <Container maxWidth={false}> */}
       <Stack direction="row" spacing={1} justifyContent="space-between">
         <TextField
+          inputRef={ref}
           onChange={handleContentChange}
           value={taskContent.task}
           label="TODO"
@@ -68,8 +77,18 @@ export default function TodoAppBar() {
           color="secondary"
           placeholder="type your new todo"
           inputProps={{ style: { color: "white" } }}
-          style={{ minWidth: "70%", background: "#323232" }}
+          style={{ minWidth: "45%", background: "#323232"}}
           // focused
+        />
+        <TextField
+          onChange={handleUrlChange}
+          value={taskContent.refs}
+          label="URL"
+          variant="filled"
+          color="secondary"
+          placeholder="paste link"
+          inputProps={{ style: { color: "white" } }}
+          style={{ minWidth: "20%", background: "#323232"}}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
@@ -83,7 +102,7 @@ export default function TodoAppBar() {
                 color: "secondary",
                 // focused: false,
                 label: "DATE",
-                style: { background: "#323232" },
+                style: {  minWidth: "15%", background: "#323232" },
               },
             }}
           />
@@ -92,7 +111,7 @@ export default function TodoAppBar() {
           variant="outlined"
           background-color="info"
           color="secondary"
-          style={{ minWidth: "10%" }}
+          style={{ minWidth: "15%" }}
           onClick={handlerRegister}
         >
           register

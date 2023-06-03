@@ -26,15 +26,22 @@
   </insert>
   
   <update id="update" parameterType="com.todo.app.entity.Todo">
-  update task_items set
+    update task_items set
   	title = #{title},
   	time_limit = to_date(#{time_limit}, 'yy-mm-dd'),
   	done_flg = #{done_flg}
   	where id = #{id}
   </update>
   
-    <update id="updateTillToday" parameterType="com.todo.app.entity.Todo">
-  update task_items set
+  <update id="updateTillToday" parameterType="com.todo.app.entity.Todo">
+    update task_items set
+  	till_today = #{tillTodayFlg}
+  	where id = #{todoId}
+  </update>
+  
+  <update id="updateDone" parameterType="com.todo.app.entity.Todo">
+    update task_items set
+  	done = #{doneFlg},
   	till_today = #{tillTodayFlg}
   	where id = #{todoId}
   </update>

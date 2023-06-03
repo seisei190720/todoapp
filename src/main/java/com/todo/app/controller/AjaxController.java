@@ -24,6 +24,8 @@ public class AjaxController {
 	TodoMapper todoMapper;
 	private static final long TILL_TODAY = 1;
 	private static final long TILL_AFTER_TOMORROW = 0;
+	private static final long DONE = 1;
+	private static final long UNDONE = 0;
 
 	@RequestMapping(value = "/tasks")
 	@ResponseBody
@@ -56,6 +58,20 @@ public class AjaxController {
 	@ResponseBody
 	public List<Todo> updateToTillToday(@PathVariable("todoId") long todoId) {
 		todoMapper.updateTillToday(todoId, TILL_AFTER_TOMORROW);
+		return todoMapper.selectAll();
+	}
+	
+	@PutMapping(value = "/task/{todoId}/done")
+	@ResponseBody
+	public List<Todo> setToDone(@PathVariable("todoId") long todoId) {
+		todoMapper.updateDone(todoId, DONE, TILL_AFTER_TOMORROW);
+		return todoMapper.selectAll();
+	}
+	
+	@PutMapping(value = "/task/{todoId}/undone")
+	@ResponseBody
+	public List<Todo> setToUndone(@PathVariable("todoId") long todoId) {
+		todoMapper.updateDone(todoId, UNDONE, TILL_AFTER_TOMORROW);
 		return todoMapper.selectAll();
 	}
 	

@@ -1,6 +1,5 @@
-import { rejects } from "assert";
-import axios, { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
-import { DefaultValue, atom, selector, useRecoilState } from "recoil";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { DefaultValue, atom, selector } from "recoil";
 import { todoData } from "../components/types";
 
 // export type todoData = {
@@ -78,6 +77,20 @@ export const updateToTillToday = async (todoId: number) => {
 export const updateToTillAfterTomorrow = async (todoId: number) => {
   const response: AxiosResponse = await axios.put(
     `http://localhost:3000/task/${todoId}/till-after-tomorrow`
+  );
+  return response.data;
+};
+
+export const updateToDone = async (todoId: number) => {
+  const response: AxiosResponse = await axios.put(
+    `http://localhost:3000/task/${todoId}/done`
+  );
+  return response.data;
+};
+
+export const updateToUndone = async (todoId: number) => {
+  const response: AxiosResponse = await axios.put(
+    `http://localhost:3000/task/${todoId}/undone`
   );
   return response.data;
 };
