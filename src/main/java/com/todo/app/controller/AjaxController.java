@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,6 +22,8 @@ public class AjaxController {
 
 	@Autowired
 	TodoMapper todoMapper;
+	private static final long TILL_TODAY = 1;
+	private static final long TILL_AFTER_TOMORROW = 0;
 
 	@RequestMapping(value = "/tasks")
 	@ResponseBody
@@ -40,6 +43,20 @@ public class AjaxController {
 	public Todo addTask(@RequestBody Todo body) {
 		todoMapper.add(body);
 		return todoMapper.selectLatestTask();
+	}
+	
+	@PutMapping(value = "/task/{todoId}/till-today")
+	@ResponseBody
+	public List<Todo> setToTillToday(@PathVariable("todoId") long todoId) {
+		todoMapper.updateTillToday(todoId, TILL_TODAY);
+		return todoMapper.selectAll();
+	}
+	
+	@PutMapping(value = "/task/{todoId}/till-after-tomorrow")
+	@ResponseBody
+	public List<Todo> updateToTillToday(@PathVariable("todoId") long todoId) {
+		todoMapper.updateTillToday(todoId, TILL_AFTER_TOMORROW);
+		return todoMapper.selectAll();
 	}
 	
 	@DeleteMapping(value="/task/delete/{todoId}")

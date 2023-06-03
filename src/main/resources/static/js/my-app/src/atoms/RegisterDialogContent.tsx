@@ -54,7 +54,7 @@ export const registerTaskApi = async (todo: todoData) => {
     "http://localhost:3000/task/add",
     todo
   );
-  return response.data
+  return response.data;
 };
 
 export const deleteTodo = (todoId: number) => {
@@ -66,4 +66,18 @@ export const deleteTodo = (todoId: number) => {
   //     alert("「" + responseBody.task + "」登録失敗");
   //     console.log(error, data);
   // });
+};
+
+export const updateToTillToday = async (todoId: number) => {
+  const response: AxiosResponse = await axios.put(
+    `http://localhost:3000/task/${todoId}/till-today`
+  );
+  return response.data;
+};
+
+export const updateToTillAfterTomorrow = async (todoId: number) => {
+  const response: AxiosResponse = await axios.put(
+    `http://localhost:3000/task/${todoId}/till-after-tomorrow`
+  );
+  return response.data;
 };

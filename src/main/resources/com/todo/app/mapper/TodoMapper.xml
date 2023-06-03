@@ -33,6 +33,12 @@
   	where id = #{id}
   </update>
   
+    <update id="updateTillToday" parameterType="com.todo.app.entity.Todo">
+  update task_items set
+  	till_today = #{tillTodayFlg}
+  	where id = #{todoId}
+  </update>
+  
   <delete id="delete" parameterType="com.todo.app.entity.Todo">
   	delete from task_items where id = #{todoId}
   </delete>
