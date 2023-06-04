@@ -31,7 +31,10 @@ import {
   updateToDone,
   updateToUndone,
 } from "../../atoms/RegisterDialogContent";
-import { todoData } from "../types";
+import { LOW_PRIORITY, TOP_PRIORITY, todoData } from "../types";
+import DoneTable from "./table/DoneTable";
+import UndoneTable from "./table/UndoneTable";
+import React from "react";
 
 export default function TodoTable() {
   //taskApiSelectorのsetterには、taskCacheAtomに値をセットする関数が定義されている
@@ -51,16 +54,8 @@ export default function TodoTable() {
     const updatedTask: todoData[] = await updateToDone(todoId);
     await setCahedTask(updatedTask);
 
-    //↓以下、tableRowハイライトのための実装(TODO 共通化する)
     const doneTaskLength = cachedTask?.filter((v) => v.done === 1).length;
-    if (doneTaskLength === undefined) return;
-    const tableRow = updatedToUndoneRowRef.current[doneTaskLength];
-    if (tableRow) {
-      tableRow.style.backgroundColor = "gray";
-      setTimeout(() => {
-        tableRow.style.backgroundColor = "";
-      }, 2000);
-    }
+    highlightMovedRow(doneTaskLength, updatedToUndoneRowRef);
   };
 
   //doneゾーンから戻す(LowPriorityへ)
@@ -68,12 +63,40 @@ export default function TodoTable() {
     const updatedTask: todoData[] = await updateToUndone(todoId);
     await setCahedTask(updatedTask);
 
-    //↓以下、tableRowハイライトのための実装(TODO 共通化する)
     const undoneTaskLength = cachedTask?.filter(
       (v) => v.done === 0 && v.till_today === 0
     ).length;
-    if (undoneTaskLength === undefined) return;
-    const tableRow = updatedToLowerRowRef.current[undoneTaskLength];
+    highlightMovedRow(undoneTaskLength, updatedToLowerRowRef);
+  };
+
+  //TopPriorityゾーンに移動させる
+  const handleUpper = async (todoId: number) => {
+    const updatedTask: todoData[] = await updateToTillToday(todoId);
+    await setCahedTask(updatedTask);
+
+    const upperTaskLength = cachedTask?.filter(
+      (v) => v.done === 0 && v.till_today === 1
+    ).length;
+    highlightMovedRow(upperTaskLength, updatedToUpperRowRef);
+  };
+
+  //LowPriorityゾーンに移動させる
+  const handleLower = async (todoId: number) => {
+    const updatedTask: todoData[] = await updateToTillAfterTomorrow(todoId);
+    await setCahedTask(updatedTask);
+
+    const lowerTaskLength = cachedTask?.filter(
+      (v) => v.done === 0 && v.till_today === 0
+    ).length;
+    highlightMovedRow(lowerTaskLength, updatedToLowerRowRef);
+  };
+
+  const highlightMovedRow = (
+    filteredTaskLength: number | undefined,
+    rowRef: React.MutableRefObject<HTMLTableRowElement[]>
+  ) => {
+    if (filteredTaskLength === undefined) return;
+    const tableRow = rowRef.current[filteredTaskLength];
     if (tableRow) {
       tableRow.style.backgroundColor = "gray";
       setTimeout(() => {
@@ -87,44 +110,6 @@ export default function TodoTable() {
     if (cachedTask === null) return;
     setCahedTask(cachedTask?.filter((v) => v.id !== todoId));
     deleteTodo(todoId);
-  };
-
-  //TopPriorityゾーンに移動させる
-  const handleUpper = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToTillToday(todoId);
-    await setCahedTask(updatedTask);
-
-    //↓以下、tableRowハイライトのための実装(TODO 共通化する)
-    const upperTaskLength = cachedTask?.filter(
-      (v) => v.done === 0 && v.till_today === 1
-    ).length;
-    if (upperTaskLength === undefined) return;
-    const tableRow = updatedToUpperRowRef.current[upperTaskLength];
-    if (tableRow) {
-      tableRow.style.backgroundColor = "gray";
-      setTimeout(() => {
-        tableRow.style.backgroundColor = "";
-      }, 2000);
-    }
-  };
-
-  //LowPriorityゾーンに移動させる
-  const handleLower = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToTillAfterTomorrow(todoId);
-    await setCahedTask(updatedTask);
-
-    //↓以下、tableRowハイライトのための実装(TODO 共通化する)
-    const lowerTaskLength = cachedTask?.filter(
-      (v) => v.done === 0 && v.till_today === 0
-    ).length;
-    if (lowerTaskLength === undefined) return;
-    const tableRow = updatedToLowerRowRef.current[lowerTaskLength];
-    if (tableRow) {
-      tableRow.style.backgroundColor = "gray";
-      setTimeout(() => {
-        tableRow.style.backgroundColor = "";
-      }, 2000);
-    }
   };
 
   return (
@@ -142,101 +127,21 @@ export default function TodoTable() {
             color={"#fff59d"}
             fontWeight={"lighter"}
           >
-            Top Priority
+            TOP PRIORITY
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            {/* <TableHead>
-              <TableRow>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="70%" sx={{ color: "white" }}>
-                  task
-                </TableCell>
-                <TableCell width="15%" sx={{ color: "white" }}>
-                  Due
-                </TableCell>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="5%"></TableCell>
-              </TableRow>
-            </TableHead> */}
-            <Table>
-              <TableBody>
-                {cachedTask
-                  ?.filter(
-                    (value) => value.done === 0 && value.till_today === 1
-                  )
-                  .map((task: any, index: number) => (
-                    <TableRow
-                      key={task.id}
-                      ref={(el) => {
-                        (updatedToUpperRowRef.current![
-                          index
-                        ] as HTMLTableRowElement | null) = el;
-                      }}
-                    >
-                      <TableCell width="5%" padding="checkbox" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleDone(task.id);
-                          }}
-                          aria-label="done"
-                        >
-                          <CheckBoxOutlineBlankIcon />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell width="70%" sx={{ color: "white" }}>
-                        {task.task}
-                      </TableCell>
-                      {/* refsボタン */}
-                      {task.refs === "" ? (
-                        <TableCell sx={{ color: "white" }}></TableCell>
-                      ) : (
-                        <TableCell sx={{ color: "white" }}>
-                          <Button
-                            variant="outlined"
-                            background-color="info"
-                            color="secondary"
-                            style={{ minWidth: "10%" }}
-                            onClick={() => window.open(task.refs)}
-                          >
-                            URL
-                          </Button>
-                        </TableCell>
-                      )}
-                      <TableCell
-                        width="15%"
-                        sx={{ color: "white" }}
-                        align="center"
-                      >
-                        {dayjs(task.due).format("YYYY-MM-DD").toString()}
-                      </TableCell>
-                      {/* 優先度調整ボタン */}
-                      <TableCell width="5%" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleLower(task.id);
-                          }}
-                          aria-label="lower"
-                        >
-                          <LowPriorityIcon />
-                        </IconButton>
-                      </TableCell>
-                      {/* 削除ボタン */}
-                      <TableCell width="5%" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleDelete(task.id);
-                          }}
-                          aria-label="delete"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <DoneTable
+              priorityZone={TOP_PRIORITY}
+              filteredTask={cachedTask?.filter(
+                (value) => value.done === 0 && value.till_today === 1
+              )}
+              handleMove={handleLower}
+              handleDone={handleDone}
+              handleDelete={handleDelete}
+              rowRef={updatedToUpperRowRef}
+            />
           </Stack>
         </AccordionDetails>
       </Accordion>
@@ -253,101 +158,21 @@ export default function TodoTable() {
             component="div"
             color={"#69f0ae"}
           >
-            Low Priority
+            LOW PRIORITY
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            {/* <TableHead>
-              <TableRow>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="70%" sx={{ color: "white" }}>
-                  task
-                </TableCell>
-                <TableCell width="15%" sx={{ color: "white" }}>
-                  Due
-                </TableCell>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="5%"></TableCell>
-              </TableRow>
-            </TableHead> */}
-            <Table>
-              <TableBody>
-                {cachedTask
-                  ?.filter(
-                    (value) => value.done === 0 && value.till_today === 0
-                  )
-                  .map((task: any, index: number) => (
-                    <TableRow
-                      key={task.id}
-                      ref={(el) => {
-                        (updatedToLowerRowRef.current![
-                          index
-                        ] as HTMLTableRowElement | null) = el;
-                      }}
-                    >
-                      <TableCell width="5%" padding="checkbox" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleDone(task.id);
-                          }}
-                          aria-label="done"
-                        >
-                          <CheckBoxOutlineBlankIcon />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell width="70%" sx={{ color: "white" }}>
-                        {task.task}
-                      </TableCell>
-                      {/* refsボタン */}
-                      {task.refs === "" ? (
-                        <TableCell sx={{ color: "white" }}></TableCell>
-                      ) : (
-                        <TableCell sx={{ color: "white" }}>
-                          <Button
-                            variant="outlined"
-                            background-color="info"
-                            color="secondary"
-                            style={{ minWidth: "10%" }}
-                            onClick={() => window.open(task.refs)}
-                          >
-                            URL
-                          </Button>
-                        </TableCell>
-                      )}
-                      <TableCell
-                        width="15%"
-                        sx={{ color: "white" }}
-                        align="center"
-                      >
-                        {dayjs(task.due).format("YYYY-MM-DD").toString()}
-                      </TableCell>
-                      {/* 優先度調整ボタン */}
-                      <TableCell width="5%" sx={{ color: "white" }}>
-                        <IconButton
-                          onClick={() => {
-                            handleUpper(task.id);
-                          }}
-                          aria-label="upper"
-                        >
-                          <VerticalAlignTopSharpIcon />
-                        </IconButton>
-                      </TableCell>
-                      {/* 削除ボタン */}
-                      <TableCell width="5%" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleDelete(task.id);
-                          }}
-                          aria-label="delete"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <DoneTable
+              priorityZone={LOW_PRIORITY}
+              filteredTask={cachedTask?.filter(
+                (value) => value.done === 0 && value.till_today === 0
+              )}
+              handleMove={handleUpper}
+              handleDone={handleDone}
+              handleDelete={handleDelete}
+              rowRef={updatedToLowerRowRef}
+            />
           </Stack>
         </AccordionDetails>
       </Accordion>
@@ -364,77 +189,17 @@ export default function TodoTable() {
             component="div"
             color={"#80d8ff"}
           >
-            Done
+            DONE
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            {/* <TableHead>
-              <TableRow>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="70%" sx={{ color: "white" }}>
-                  task
-                </TableCell>
-                <TableCell width="15%" sx={{ color: "white" }}>
-                  Due
-                </TableCell>
-                <TableCell width="5%"></TableCell>
-                <TableCell width="5%"></TableCell>
-              </TableRow>
-            </TableHead> */}
-            <Table>
-              <TableBody>
-                {cachedTask
-                  ?.filter((value) => value.done === 1)
-                  .map((task: any, index: number) => (
-                    <TableRow
-                      key={task.id}
-                      ref={(el) => {
-                        (updatedToUndoneRowRef.current![
-                          index
-                        ] as HTMLTableRowElement | null) = el;
-                      }}
-                    >
-                      <TableCell width="5%" padding="checkbox" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleUndone(task.id);
-                          }}
-                          aria-label="undone"
-                        >
-                          <CheckBoxIcon />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell
-                        width="70%"
-                        sx={{
-                          color: "white",
-                          textDecoration: "line-through",
-                        }}
-                      >
-                        {task.task}
-                      </TableCell>
-                      <TableCell
-                        width="15%"
-                        sx={{ color: "white", textDecoration: "line-through" }}
-                        align="center"
-                      >
-                        {dayjs(task.due).format("YYYY-MM-DD").toString()}
-                      </TableCell>
-                      <TableCell width="10%" align="center">
-                        <IconButton
-                          onClick={() => {
-                            handleDelete(task.id);
-                          }}
-                          aria-label="delete"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <UndoneTable
+              filteredTask={cachedTask?.filter((value) => value.done === 1)}
+              handleUndone={handleUndone}
+              handleDelete={handleDelete}
+              rowRef={updatedToUndoneRowRef}
+            />
           </Stack>
         </AccordionDetails>
       </Accordion>

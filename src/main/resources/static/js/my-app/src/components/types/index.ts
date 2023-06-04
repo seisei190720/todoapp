@@ -9,3 +9,6 @@ export type todoData = {
     till_today: number;
     done_date: Date | null;
   };
+
+  export const TOP_PRIORITY = "top-priority";
+  export const LOW_PRIORITY = "low-priority";
