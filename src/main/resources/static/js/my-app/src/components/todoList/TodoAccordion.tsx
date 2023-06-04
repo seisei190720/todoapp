@@ -19,6 +19,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  withStyles,
 } from "@mui/material";
 import dayjs from "dayjs";
 import {
@@ -29,8 +30,8 @@ import {
   updateToTillAfterTomorrow,
   updateToDone,
   updateToUndone,
-} from "../atoms/RegisterDialogContent";
-import { todoData } from "./types";
+} from "../../atoms/RegisterDialogContent";
+import { todoData } from "../types";
 
 export default function TodoTable() {
   //taskApiSelectorのsetterには、taskCacheAtomに値をセットする関数が定義されている
@@ -44,10 +45,6 @@ export default function TodoTable() {
   useEffect(() => {
     store(savedTask); // 初回fetchで返った値をselectorに保存する
   }, [savedTask, store]);
-
-  const handlerJumpToUrl = (refs: string) => {
-    window.open('URL');
-  }
 
   //doneゾーンに移動させる
   const handleDone = async (todoId: number) => {
@@ -143,13 +140,14 @@ export default function TodoTable() {
             id="tableTitle"
             component="div"
             color={"#fff59d"}
+            fontWeight={"lighter"}
           >
             Top Priority
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <TableHead>
+            {/* <TableHead>
               <TableRow>
                 <TableCell width="5%"></TableCell>
                 <TableCell width="70%" sx={{ color: "white" }}>
@@ -161,7 +159,7 @@ export default function TodoTable() {
                 <TableCell width="5%"></TableCell>
                 <TableCell width="5%"></TableCell>
               </TableRow>
-            </TableHead>
+            </TableHead> */}
             <Table>
               <TableBody>
                 {cachedTask
@@ -191,17 +189,21 @@ export default function TodoTable() {
                         {task.task}
                       </TableCell>
                       {/* refsボタン */}
-                      <TableCell sx={{ color: "white" }}>
-                        <Button
-                          variant="outlined"
-                          background-color="info"
-                          color="secondary"
-                          style={{ minWidth: "10%" }}
-                          onClick={() => window.open(task.refs)}
-                        >
-                          URL
-                        </Button>
-                      </TableCell>
+                      {task.refs === "" ? (
+                        <TableCell sx={{ color: "white" }}></TableCell>
+                      ) : (
+                        <TableCell sx={{ color: "white" }}>
+                          <Button
+                            variant="outlined"
+                            background-color="info"
+                            color="secondary"
+                            style={{ minWidth: "10%" }}
+                            onClick={() => window.open(task.refs)}
+                          >
+                            URL
+                          </Button>
+                        </TableCell>
+                      )}
                       <TableCell
                         width="15%"
                         sx={{ color: "white" }}
@@ -256,7 +258,7 @@ export default function TodoTable() {
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <TableHead>
+            {/* <TableHead>
               <TableRow>
                 <TableCell width="5%"></TableCell>
                 <TableCell width="70%" sx={{ color: "white" }}>
@@ -268,7 +270,7 @@ export default function TodoTable() {
                 <TableCell width="5%"></TableCell>
                 <TableCell width="5%"></TableCell>
               </TableRow>
-            </TableHead>
+            </TableHead> */}
             <Table>
               <TableBody>
                 {cachedTask
@@ -297,6 +299,22 @@ export default function TodoTable() {
                       <TableCell width="70%" sx={{ color: "white" }}>
                         {task.task}
                       </TableCell>
+                      {/* refsボタン */}
+                      {task.refs === "" ? (
+                        <TableCell sx={{ color: "white" }}></TableCell>
+                      ) : (
+                        <TableCell sx={{ color: "white" }}>
+                          <Button
+                            variant="outlined"
+                            background-color="info"
+                            color="secondary"
+                            style={{ minWidth: "10%" }}
+                            onClick={() => window.open(task.refs)}
+                          >
+                            URL
+                          </Button>
+                        </TableCell>
+                      )}
                       <TableCell
                         width="15%"
                         sx={{ color: "white" }}
@@ -351,7 +369,7 @@ export default function TodoTable() {
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <TableHead>
+            {/* <TableHead>
               <TableRow>
                 <TableCell width="5%"></TableCell>
                 <TableCell width="70%" sx={{ color: "white" }}>
@@ -363,7 +381,7 @@ export default function TodoTable() {
                 <TableCell width="5%"></TableCell>
                 <TableCell width="5%"></TableCell>
               </TableRow>
-            </TableHead>
+            </TableHead> */}
             <Table>
               <TableBody>
                 {cachedTask

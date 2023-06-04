@@ -1,15 +1,15 @@
 import { Button, Stack, TextField, ThemeProvider } from "@mui/material";
-import { theme } from "../App";
+import { theme } from "../../App";
 import { useRecoilState } from "recoil";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-import { registerTaskApi, taskCacheAtom } from "../atoms/RegisterDialogContent";
+import { registerTaskApi, taskCacheAtom } from "../../atoms/RegisterDialogContent";
 import { useEffect, useRef, useState } from "react";
-import { todoData } from "./types";
+import { todoData } from "../types";
 
-export default function TodoAppBar() {
+export default function TodoRegister() {
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const ref = useRef<HTMLInputElement>(null);
 
