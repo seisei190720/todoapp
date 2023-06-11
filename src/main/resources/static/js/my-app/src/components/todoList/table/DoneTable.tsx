@@ -1,8 +1,6 @@
 import { FC } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import LowPriorityIcon from "@mui/icons-material/LowPriority";
-import VerticalAlignTopSharpIcon from "@mui/icons-material/VerticalAlignTopSharp";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import {
   Button,
   IconButton,
@@ -12,27 +10,22 @@ import {
   TableRow,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { TOP_PRIORITY, todoData } from "../../types";
+import { todoData } from "../../types";
 import React from "react";
 
 type Props = {
-  priorityZone: string;
   filteredTask: todoData[] | undefined;
-  handleMove: (todoId: number) => Promise<void>;
-  handleDone: (todoId: number) => Promise<void>;
+  handleUndone: (todoId: number) => Promise<void>;
   handleDelete: (todoId: number) => void;
   rowRef: React.MutableRefObject<HTMLTableRowElement[]>;
 };
 
 const DoneTable: FC<Props> = ({
-  priorityZone,
   filteredTask,
-  handleMove,
-  handleDone,
+  handleUndone,
   handleDelete,
   rowRef,
 }) => {
-
   return (
     <>
       <Table>
@@ -50,15 +43,31 @@ const DoneTable: FC<Props> = ({
                 <TableCell width="5%" padding="checkbox" align="center">
                   <IconButton
                     onClick={() => {
-                      handleDone(task.id);
+                      handleUndone(task.id);
                     }}
-                    aria-label="done"
+                    aria-label="undone"
                   >
-                    <CheckBoxOutlineBlankIcon />
+                    <CheckBoxIcon />
                   </IconButton>
                 </TableCell>
-                <TableCell width="70%" sx={{ color: "white" }}>
+                <TableCell
+                  width="70%"
+                  sx={{
+                    color: "white",
+                    textDecoration: "line-through",
+                  }}
+                >
                   {task.task}
+                </TableCell>
+                {/* 期限(日付) */}
+                <TableCell
+                  width="15%"
+                  sx={{ color: "white", textDecoration: "line-through" }}
+                  align="center"
+                >
+                  {task.due
+                    ? dayjs(task.due).format("YYYY-MM-DD").toString()
+                    : ""}
                 </TableCell>
                 {/* refsボタン */}
                 {task.refs === "" ? (
@@ -76,26 +85,7 @@ const DoneTable: FC<Props> = ({
                     </Button>
                   </TableCell>
                 )}
-                <TableCell width="15%" sx={{ color: "white" }} align="center">
-                  {dayjs(task.due).format("YYYY-MM-DD").toString()}
-                </TableCell>
-                {/* 優先度調整ボタン */}
-                <TableCell width="5%" align="center">
-                  <IconButton
-                    onClick={() => {
-                      handleMove(task.id);
-                    }}
-                    aria-label="lower"
-                  >
-                    {priorityZone === TOP_PRIORITY ? (
-                      <LowPriorityIcon />
-                    ) : (
-                      <VerticalAlignTopSharpIcon />
-                    )}
-                  </IconButton>
-                </TableCell>
-                {/* 削除ボタン */}
-                <TableCell width="5%" align="center">
+                <TableCell width="10%" align="center">
                   <IconButton
                     onClick={() => {
                       handleDelete(task.id);

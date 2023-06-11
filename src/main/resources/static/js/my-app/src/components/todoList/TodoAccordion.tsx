@@ -1,27 +1,14 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
-import DeleteIcon from "@mui/icons-material/Delete";
-import LowPriorityIcon from "@mui/icons-material/LowPriority";
-import VerticalAlignTopSharpIcon from "@mui/icons-material/VerticalAlignTopSharp";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
-  IconButton,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Typography,
-  withStyles,
 } from "@mui/material";
-import dayjs from "dayjs";
 import {
   taskApiSelector,
   taskCacheAtom,
@@ -39,10 +26,11 @@ import React from "react";
 export default function TodoTable() {
   //taskApiSelectorのsetterには、taskCacheAtomに値をセットする関数が定義されている
   const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
-  const [cachedTask, setCahedTask] = useRecoilState(taskCacheAtom);
+  const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const updatedToUpperRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToLowerRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToUndoneRowRef = useRef<HTMLTableRowElement[]>([]);
+  const checkBoxCellRef = useRef<HTMLTableCellElement[]>([]);
   // const dispatch = useDispatch();
 
   useEffect(() => {
@@ -52,16 +40,19 @@ export default function TodoTable() {
   //doneゾーンに移動させる
   const handleDone = async (todoId: number) => {
     const updatedTask: todoData[] = await updateToDone(todoId);
-    await setCahedTask(updatedTask);
+    await setCachedTask(updatedTask);
 
     const doneTaskLength = cachedTask?.filter((v) => v.done === 1).length;
     highlightMovedRow(doneTaskLength, updatedToUndoneRowRef);
+    
+    //カウントダウン機能のテスト
+
   };
 
   //doneゾーンから戻す(LowPriorityへ)
   const handleUndone = async (todoId: number) => {
     const updatedTask: todoData[] = await updateToUndone(todoId);
-    await setCahedTask(updatedTask);
+    await setCachedTask(updatedTask);
 
     const undoneTaskLength = cachedTask?.filter(
       (v) => v.done === 0 && v.till_today === 0
@@ -72,7 +63,7 @@ export default function TodoTable() {
   //TopPriorityゾーンに移動させる
   const handleUpper = async (todoId: number) => {
     const updatedTask: todoData[] = await updateToTillToday(todoId);
-    await setCahedTask(updatedTask);
+    await setCachedTask(updatedTask);
 
     const upperTaskLength = cachedTask?.filter(
       (v) => v.done === 0 && v.till_today === 1
@@ -83,7 +74,7 @@ export default function TodoTable() {
   //LowPriorityゾーンに移動させる
   const handleLower = async (todoId: number) => {
     const updatedTask: todoData[] = await updateToTillAfterTomorrow(todoId);
-    await setCahedTask(updatedTask);
+    await setCachedTask(updatedTask);
 
     const lowerTaskLength = cachedTask?.filter(
       (v) => v.done === 0 && v.till_today === 0
@@ -108,7 +99,7 @@ export default function TodoTable() {
   // 選択したタスクを消去する
   const handleDelete = (todoId: number) => {
     if (cachedTask === null) return;
-    setCahedTask(cachedTask?.filter((v) => v.id !== todoId));
+    setCachedTask(cachedTask?.filter((v) => v.id !== todoId));
     deleteTodo(todoId);
   };
 
@@ -132,7 +123,7 @@ export default function TodoTable() {
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <DoneTable
+            <UndoneTable
               priorityZone={TOP_PRIORITY}
               filteredTask={cachedTask?.filter(
                 (value) => value.done === 0 && value.till_today === 1
@@ -141,6 +132,7 @@ export default function TodoTable() {
               handleDone={handleDone}
               handleDelete={handleDelete}
               rowRef={updatedToUpperRowRef}
+              // checkBoxCellRef={checkBoxCellRef}
             />
           </Stack>
         </AccordionDetails>
@@ -163,7 +155,7 @@ export default function TodoTable() {
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <DoneTable
+            <UndoneTable
               priorityZone={LOW_PRIORITY}
               filteredTask={cachedTask?.filter(
                 (value) => value.done === 0 && value.till_today === 0
@@ -172,6 +164,7 @@ export default function TodoTable() {
               handleDone={handleDone}
               handleDelete={handleDelete}
               rowRef={updatedToLowerRowRef}
+              // checkBoxCellRef={checkBoxCellRef}
             />
           </Stack>
         </AccordionDetails>
@@ -194,7 +187,7 @@ export default function TodoTable() {
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
-            <UndoneTable
+            <DoneTable
               filteredTask={cachedTask?.filter((value) => value.done === 1)}
               handleUndone={handleUndone}
               handleDelete={handleDelete}

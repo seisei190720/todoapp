@@ -1,7 +1,7 @@
 export type todoData = {
     id: number;
     task: string;
-    due: Date;
+    due: Date | null;
     done: number;
     //仮置きのnull
     priority: number | null;

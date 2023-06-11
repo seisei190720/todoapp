@@ -17,10 +17,10 @@ export default function TodoRegister() {
   const [taskContent, setTaskContent] = useState<todoData>({
     id: 1,
     task: "",
-    due: new Date(),
+    due: null,
     done: 0,
     priority: null,
-    refs: null,
+    refs: "",
     till_today: 0,
     done_date: null,
   });
@@ -57,6 +57,13 @@ export default function TodoRegister() {
     setTaskContent((prev) => ({ ...prev, due: date }));
   };
 
+  //ctrl + EnterでRegister
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      handlerRegister();
+    }
+  }
+
   return (
     <ThemeProvider theme={theme}>
       {/* <AppBar position='static' > */}
@@ -79,6 +86,7 @@ export default function TodoRegister() {
           placeholder="type your new todo"
           inputProps={{ style: { color: "white" } }}
           style={{ minWidth: "45%", background: "#323232"}}
+          onKeyDown={handleKeyDown}
           // focused
         />
         <TextField
